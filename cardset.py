@@ -18,7 +18,7 @@ for sheet in doc.worksheets():
     data = sheet.get_all_values()
 
     if sheet.title == PLOT_NAME:
-        card_data = [r[0] for r in data]
+        card_data = [{'text': r[0], 'size': r[1]} for r in data]
         render_plot(card_data)
 
     elif sheet.title == TROPE_NAME:

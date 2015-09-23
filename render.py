@@ -1,3 +1,5 @@
+import re
+import copy
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter, inch
@@ -5,6 +7,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Table, TableStyle
+
+br_finder = re.compile('<\s*br\s*>', re.IGNORECASE)
 
 
 def render_plot(data):
@@ -34,10 +38,19 @@ def _render(data, filename, width):
         topMargin=0.188 * inch,
         bottomMargin=0)
 
-    def layout(text):
+    def layout(data):
+        text = br_finder.sub('<br/>', data['text'])
+
+        if data['size']:
+            ls = copy.deepcopy(s)
+            ls.fontSize = float(data['size'])
+            ls.leading = float(data['size']) * (float(s.leading) / float(s.fontSize))
+        else:
+            ls = s
+
         it = Table(
             [
-                [Paragraph(text, s)],
+                [Paragraph(text, ls)],
                 [icon]
             ],
             colWidths=(1.97 * inch),
