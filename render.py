@@ -1,7 +1,7 @@
 import re
 import copy
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
@@ -21,6 +21,7 @@ def _get_style(font, size, align):
     style.fontSize = float(size)
     style.leading = float(size) * (14.64 / 12.96)
     style.alignment = align
+    style.spaceAfter = 0.15 * inch
     return style
 
 
@@ -94,12 +95,12 @@ def render_trope(data):
     doc = SimpleDocTemplate(
         'trope.pdf',
         pagesize=letter,
-        leftMargin=0.293 * inch,
-        rightMargin=0.293 * inch,
-        topMargin=0.188 * inch,
+        leftMargin=0.418 * inch,
+        rightMargin=0.418 * inch,
+        topMargin=0.155 * inch,
         bottomMargin=0)
 
-    icon = _get_icon(0.556 * inch, 0.233 * inch)
+    icon = _get_icon(0.712 * inch, 0.299 * inch)
 
     def layout(data):
         line_top = Paragraph(
@@ -107,17 +108,17 @@ def render_trope(data):
             _get_style('TheSansBP', 13.92, TA_CENTER))
         line_mid = Paragraph(
             _rewrap(data['mid']),
-            _get_style('TheSansReg', 9.77, TA_LEFT))
+            _get_style('TheSansReg', 9.77, TA_JUSTIFY))
         line_bot = Paragraph(
             _rewrap(data['bot']),
-            _get_style('TheSansBP', 9.77, TA_LEFT))
+            _get_style('TheSansBP', 9.77, TA_JUSTIFY))
 
         inside_table = Table(
             [
                 [[line_top, line_mid, line_bot]], [icon]
             ],
-            colWidths=(2.63 * inch),
-            rowHeights=(2.31 * inch, 0.233 * inch))
+            colWidths=(2.5 * inch),
+            rowHeights=(2.333 * inch, 0.299 * inch))
 
         inside_table.setStyle(TableStyle([
             # Global
@@ -129,7 +130,7 @@ def render_trope(data):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
             # Logo
             ('VALIGN', (0, 1), (0, 1), 'BOTTOM'),
-            ('BOTTOMPADDING', (0, 1), (0, 1), 0.063 * inch),
+            ('BOTTOMPADDING', (0, 1), (0, 1), 0.101 * inch),
         ]))
 
         return inside_table
