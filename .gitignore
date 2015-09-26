@@ -1,4 +1,5 @@
 .venv/
+resources/raw/
 credentials.json
 *.pdf
 *.pyc

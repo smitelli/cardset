@@ -8,74 +8,79 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Table, TableStyle
 
-br_finder = re.compile('<\s*br\s*>', re.IGNORECASE)
+pdfmetrics.registerFont(TTFont('TheSansReg', 'resources/TheSans-Regular.ttf'))
+pdfmetrics.registerFont(TTFont('TheSansBP', 'resources/TheSans-BoldPlain.ttf'))
+
+base_style = getSampleStyleSheet().get('Normal')
+base_style.textColor = colors.black
+
+
+def _get_style(font, size, align):
+    style = copy.deepcopy(base_style)
+    style.fontName = font
+    style.fontSize = float(size)
+    style.leading = float(size) * (14.64 / 12.96)
+    style.alignment = align
+    return style
+
+
+def _get_icon(width, height):
+    icon = Image('resources/icon_plottwist2.png')
+    icon.drawWidth = width
+    icon.drawHeight = height
+    return icon
+
+
+def _rewrap(text):
+    return re.sub('<\s*br\s*>', '<br/>', text, flags=re.IGNORECASE)
 
 
 def render_plot(data):
-    _render(data, 'plot.pdf', 4)
-
-
-def _render(data, filename, width):
-    styles = getSampleStyleSheet()
-    s = styles['Normal']
-    s.alignment = TA_CENTER
-    s.fontName = 'TheSansBP'
-    s.fontSize = 12.96
-    s.leading = 14.64
-    s.textColor = colors.black
-
-    icon = Image('resources/icon_plottwist2.png')
-    icon.drawWidth = 0.556 * inch
-    icon.drawHeight = 0.233 * inch
-
-    pdfmetrics.registerFont(TTFont('TheSansBP', 'resources/TheSans-BoldPlain.ttf'))
-
     doc = SimpleDocTemplate(
-        filename,
+        'plot.pdf',
         pagesize=letter,
         leftMargin=0.293 * inch,
         rightMargin=0.293 * inch,
         topMargin=0.188 * inch,
         bottomMargin=0)
 
+    icon = _get_icon(0.556 * inch, 0.233 * inch)
+
     def layout(data):
-        text = br_finder.sub('<br/>', data['text'])
-
         if data['size']:
-            ls = copy.deepcopy(s)
-            ls.fontSize = float(data['size'])
-            ls.leading = float(data['size']) * (float(s.leading) / float(s.fontSize))
+            style = _get_style('TheSansBP', data['size'], TA_CENTER)
         else:
-            ls = s
+            style = _get_style('TheSansBP', 12.96, TA_CENTER)
 
-        it = Table(
+        inside_table = Table(
             [
-                [Paragraph(text, ls)],
+                [Paragraph(_rewrap(data['text']), style)],
                 [icon]
             ],
             colWidths=(1.97 * inch),
             rowHeights=(1.844 * inch, 0.233 * inch))
 
-        it.setStyle(TableStyle([
+        inside_table.setStyle(TableStyle([
+            # Global
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('LEFTPADDING', (0, 0), (-1, -1), 0.15 * inch),
             ('RIGHTPADDING', (0, 0), (-1, -1), 0.15 * inch),
             ('TOPPADDING', (0, 0), (-1, -1), 0.117 * inch),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-            # Logo stuff
+            # Logo
             ('VALIGN', (0, 1), (0, 1), 'BOTTOM'),
             ('BOTTOMPADDING', (0, 1), (0, 1), 0.063 * inch),
         ]))
 
-        return it
+        return inside_table
 
-    data = [layout(x) for x in data]
-    rows = [data[x:x + width] for x in xrange(0, len(data), width)]
+    cells = [layout(x) for x in data]
+    rows = [cells[x:x + 4] for x in xrange(0, len(cells), 4)]
 
-    t = Table(rows)
+    outside_table = Table(rows)
 
-    t.setStyle(TableStyle([
+    outside_table.setStyle(TableStyle([
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
@@ -83,4 +88,8 @@ def _render(data, filename, width):
         ('GRID', (0, 0), (-1, -1), 0.02 * inch, (0.341, 0.341, 0.341))
     ]))
 
-    doc.build([t])
+    doc.build([outside_table])
+
+
+def render_trope(data):
+    pass

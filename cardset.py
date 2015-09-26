@@ -1,7 +1,7 @@
 import gspread
 import json
 from oauth2client.client import SignedJwtAssertionCredentials
-from render import render_plot
+from render import render_plot, render_trope
 
 DOC_NAME = 'Plot Twist - Print and Play Card List - v0.1'
 PLOT_NAME = 'Plot Cards'
@@ -23,3 +23,4 @@ for sheet in doc.worksheets():
 
     elif sheet.title == TROPE_NAME:
         card_data = [{'top': r[0], 'mid': r[1], 'bot': r[2]} for r in data]
+        render_trope(card_data)
