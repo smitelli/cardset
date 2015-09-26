@@ -1,7 +1,7 @@
 import re
 import copy
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
@@ -54,8 +54,7 @@ def render_plot(data):
 
         inside_table = Table(
             [
-                [Paragraph(_rewrap(data['text']), style)],
-                [icon]
+                [Paragraph(_rewrap(data['text']), style)], [icon]
             ],
             colWidths=(1.97 * inch),
             rowHeights=(1.844 * inch, 0.233 * inch))
@@ -92,4 +91,60 @@ def render_plot(data):
 
 
 def render_trope(data):
-    pass
+    doc = SimpleDocTemplate(
+        'trope.pdf',
+        pagesize=letter,
+        leftMargin=0.293 * inch,
+        rightMargin=0.293 * inch,
+        topMargin=0.188 * inch,
+        bottomMargin=0)
+
+    icon = _get_icon(0.556 * inch, 0.233 * inch)
+
+    def layout(data):
+        line_top = Paragraph(
+            _rewrap(data['top']),
+            _get_style('TheSansBP', 13.92, TA_CENTER))
+        line_mid = Paragraph(
+            _rewrap(data['mid']),
+            _get_style('TheSansReg', 9.77, TA_LEFT))
+        line_bot = Paragraph(
+            _rewrap(data['bot']),
+            _get_style('TheSansBP', 9.77, TA_LEFT))
+
+        inside_table = Table(
+            [
+                [[line_top, line_mid, line_bot]], [icon]
+            ],
+            colWidths=(2.63 * inch),
+            rowHeights=(2.31 * inch, 0.233 * inch))
+
+        inside_table.setStyle(TableStyle([
+            # Global
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0.15 * inch),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0.15 * inch),
+            ('TOPPADDING', (0, 0), (-1, -1), 0.117 * inch),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            # Logo
+            ('VALIGN', (0, 1), (0, 1), 'BOTTOM'),
+            ('BOTTOMPADDING', (0, 1), (0, 1), 0.063 * inch),
+        ]))
+
+        return inside_table
+
+    cells = [layout(x) for x in data]
+    rows = [cells[x:x + 3] for x in xrange(0, len(cells), 3)]
+
+    outside_table = Table(rows)
+
+    outside_table.setStyle(TableStyle([
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('GRID', (0, 0), (-1, -1), 0.02 * inch, (0.341, 0.341, 0.341))
+    ]))
+
+    doc.build([outside_table])
