@@ -9,6 +9,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Table, TableStyle
 
 pdfmetrics.registerFont(TTFont('TheSansReg', 'resources/TheSans-Regular.ttf'))
+pdfmetrics.registerFont(TTFont('TheSansRC', 'resources/TheSans-RegularCaps.ttf'))
 pdfmetrics.registerFont(TTFont('TheSansBP', 'resources/TheSans-BoldPlain.ttf'))
 pdfmetrics.registerFont(TTFont('TheSansBC', 'resources/TheSans-BoldCaps.ttf'))
 
@@ -33,8 +34,13 @@ def _get_icon(width, height):
     return icon
 
 
-def _rewrap(text):
-    return re.sub('<\s*br\s*>', '<br/>', text, flags=re.IGNORECASE)
+def _rewrap(text, num_font=None):
+    text = re.sub(r'<\s*br\s*>', r'<br/>', text, flags=re.IGNORECASE)
+
+    if num_font is not None:
+        text = re.sub(r'(\d+)', r'<font name="{}">\1</font>'.format(num_font), text)
+
+    return text
 
 
 def render_plot(data):
@@ -56,7 +62,7 @@ def render_plot(data):
 
         inside_table = Table(
             [
-                [Paragraph(_rewrap(data['text']), style)], [icon]
+                [Paragraph(_rewrap(data['text'], num_font='TheSansBC'), style)], [icon]
             ],
             colWidths=(1.97 * inch),
             rowHeights=(1.844 * inch, 0.233 * inch))
@@ -105,13 +111,13 @@ def render_trope(data):
 
     def layout(data):
         line_top = Paragraph(
-            _rewrap(data['top']),
+            _rewrap(data['top'], num_font='TheSansBC'),
             _get_style('TheSansBP', 13.92, TA_CENTER))
         line_mid = Paragraph(
-            _rewrap(data['mid']),
+            _rewrap(data['mid'], num_font='TheSansRC'),
             _get_style('TheSansReg', 9.77, TA_JUSTIFY))
         line_bot = Paragraph(
-            _rewrap(data['bot']),
+            _rewrap(data['bot'], num_font='TheSansBC'),
             _get_style('TheSansBP', 9.77, TA_JUSTIFY))
 
         inside_table = Table(
