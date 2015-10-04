@@ -10,6 +10,7 @@ from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Table, Table
 
 pdfmetrics.registerFont(TTFont('TheSansReg', 'resources/TheSans-Regular.ttf'))
 pdfmetrics.registerFont(TTFont('TheSansBP', 'resources/TheSans-BoldPlain.ttf'))
+pdfmetrics.registerFont(TTFont('TheSansBC', 'resources/TheSans-BoldCaps.ttf'))
 
 base_style = getSampleStyleSheet().get('Normal')
 base_style.textColor = colors.black
