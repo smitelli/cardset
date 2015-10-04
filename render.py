@@ -124,8 +124,8 @@ def render_trope(data):
             # Global
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 0.15 * inch),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0.15 * inch),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0.10 * inch),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0.10 * inch),
             ('TOPPADDING', (0, 0), (-1, -1), 0.117 * inch),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
             # Logo
