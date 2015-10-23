@@ -1,0 +1,1 @@
+pdfjam rules.pdf plot.pdf trope.pdf --letterpaper --outfile output.pdf
